@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --ffe-navy: #002776;
+      --ffe-blue: #005aa4;
+      --ffe-sand: #f8e9dd;
+      --ffe-green: #00754e;
+      --ffe-amber: #dc8000;
+      --ffe-red: #db3335;
+      --ffe-gray: #323232;
+      --ffe-bg: #f4f7fa;
+      --ffe-border: #d0d5dd;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Source Sans 3', sans-serif;
+      background: var(--ffe-bg);
+      color: var(--ffe-gray);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    .header {
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--ffe-navy);
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid var(--ffe-border);
+    }
+
+    .tab-btn {
+      padding: 12px 20px;
+      border: none;
+      background: none;
+      color: #666;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all 200ms ease;
+    }
+
+    .tab-btn.active {
+      color: var(--ffe-blue);
+      border-bottom-color: var(--ffe-blue);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+      background: white;
+      border: 1px solid var(--ffe-border);
+      border-radius: 6px;
+      padding: 1.25rem;
+      transition: box-shadow 200ms ease;
+    }
+
+    .kpi-card:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .kpi-number {
+      font-size: 12px;
+      color: #999;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .kpi-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ffe-navy);
+      margin-bottom: 8px;
+    }
+
+    .kpi-metric {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .kpi-progress {
+      margin-bottom: 12px;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: #e9ecef;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--ffe-green);
+      transition: width 300ms ease;
+    }
+
+    .progress-fill.at-risk {
+      background: var(--ffe-amber);
+    }
+
+    .progress-fill.off-track {
+      background: var(--ffe-red);
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-badge.on-track {
+      background: rgba(0, 117, 78, 0.1);
+      color: var(--ffe-green);
+    }
+
+    .status-badge.at-risk {
+      background: rgba(220, 128, 0, 0.1);
+      color: var(--ffe-amber);
+    }
+
+    .status-badge.off-track {
+      background: rgba(219, 51, 53, 0.1);
+      color: var(--ffe-red);
+    }
+
+    .form-section {
+      background: white;
+      border: 1px solid var(--ffe-border);
+      border-radius: 6px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ffe-navy);
+      margin-bottom: 1.5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ffe-navy);
+      margin-bottom: 6px;
+    }
+
+    input, select, textarea {
+      padding: 10px 12px;
+      border: 1px solid var(--ffe-border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 14px;
+      transition: border-color 200ms ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--ffe-blue);
+      box-shadow: 0 0 0 3px rgba(0, 90, 164, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    button {
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+
+    .btn-primary {
+      background: var(--ffe-blue);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #004a8a;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--ffe-blue);
+      border: 1px solid var(--ffe-blue);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(0, 90, 164, 0.05);
+    }
+
+    .add-success {
+      background: var(--ffe-green);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin-top: 1rem;
+      text-align: center;
+      display: none;
+    }
+
+    .add-success.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>KPI-oversikt</h1>
+      <p>Ledersamling – drøfting av teamkjl og målsettinger</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('kpis')">
+        <span style="margin-right: 6px;">📊</span>Gjeldende KPIer
+      </button>
+      <button class="tab-btn" onclick="switchTab('form')">
+        <span style="margin-right: 6px;">➕</span>Legg til ny KPI
+      </button>
+    </div>
+
+    <div id="kpis" class="tab-content active">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-number">KPI #1</div>
+          <div class="kpi-title">Best i Alliansen på sikker drift</div>
+          <div class="kpi-metric">95 % innen SLA</div>
+          <div class="kpi-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 92%"></div>
+            </div>
+            <div class="progress-labels">
+              <span>Faktisk: 92%</span>
+              <span>Mål: 95%</span>
+            </div>
+          </div>
+          <span class="status-badge at-risk">I nærheten av mål</span>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-number">KPI #2</div>
+          <div class="kpi-title">Kundetilfredshet</div>
+          <div class="kpi-metric">Kundetilfredshet → X</div>
+          <div class="kpi-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 88%"></div>
+            </div>
+            <div class="progress-labels">
+              <span>Faktisk: 88%</span>
+              <span>Mål: 95%</span>
+            </div>
+          </div>
+          <span class="status-badge at-risk">Trenger forbedring</span>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-number">KPI #3</div>
+          <div class="kpi-title">Høytpresterende kompetansemiljø</div>
+          <div class="kpi-metric">Autonomi, arbeidsmiljø, utvikling > 8</div>
+          <div class="kpi-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 78%"></div>
+            </div>
+            <div class="progress-labels">
+              <span>Faktisk: 7,8</span>
+              <span>Mål: 8,0</span>
+            </div>
+          </div>
+          <span class="status-badge at-risk">Tett på mål</span>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-number">KPI #4</div>
+          <div class="kpi-title">Kundeleveranser effektivitet</div>
+          <div class="kpi-metric">Effektiviseringsgrad > 5% årlig</div>
+          <div class="kpi-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 72%"></div>
+            </div>
+            <div class="progress-labels">
+              <span>Faktisk: 3,6%</span>
+              <span>Mål: 5,0%</span>
+            </div>
+          </div>
+          <span class="status-badge off-track">Under mål</span>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-number">KPI #5</div>
+          <div class="kpi-title">Kvalitet og profesjonalitet</div>
+          <div class="kpi-metric">Samarbeid på tvers av grenser</div>
+          <div class="kpi-progress">
+            <div class="progress-bar">
+              <div class="progress-fill on-track" style="width: 96%"></div>
+            </div>
+            <div class="progress-labels">
+              <span>Faktisk: 96%</span>
+              <span>Mål: 95%</span>
+            </div>
+          </div>
+          <span class="status-badge on-track">Vel innen mål</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="form" class="tab-content">
+      <div class="form-section">
+        <h2 class="form-title">Legg til ny KPI</h2>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label>KPI-navn *</label>
+            <input type="text" id="kpiName" placeholder="F.eks. Kundetilfredshet">
+          </div>
+          
+          <div class="form-group">
+            <label>Kort beskrivelse *</label>
+            <input type="text" id="kpiDesc" placeholder="F.eks. NPS-score">
+          </div>
+          
+          <div class="form-group">
+            <label>Målverdi *</label>
+            <input type="number" id="kpiTarget" placeholder="F.eks. 95" step="0.1">
+          </div>
+          
+          <div class="form-group">
+            <label>Aktuell verdi *</label>
+            <input type="number" id="kpiCurrent" placeholder="F.eks. 92" step="0.1">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label>Kommentarer</label>
+          <textarea id="kpiComments" placeholder="Bakgrunn, strategi, eller notater til ledersamlingen..."></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-secondary" onclick="clearForm()">Nullstill</button>
+          <button class="btn-primary" onclick="addKPI()">Legg til KPI</button>
+        </div>
+
+        <div class="add-success" id="successMsg">
+          ✓ KPI lagt til! Klar for presentasjon i ledersamlingen.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabName).classList.add('active');
+      event.target.closest('.tab-btn').classList.add('active');
+    }
+
+    function addKPI() {
+      const name = document.getElementById('kpiName').value;
+      const desc = document.getElementById('kpiDesc').value;
+      const target = parseFloat(document.getElementById('kpiTarget').value);
+      const current = parseFloat(document.getElementById('kpiCurrent').value);
+      const comments = document.getElementById('kpiComments').value;
+
+      if (!name || !desc || isNaN(target) || isNaN(current)) {
+        alert('Vennligst fyll inn alle påkrevde felt (markert med *)');
+        return;
+      }
+
+      const percentage = Math.round((current / target) * 100);
+      let statusClass = 'on-track';
+      let statusText = 'Vel innen mål';
+      
+      if (percentage < 85) {
+        statusClass = 'off-track';
+        statusText = 'Under mål';
+      } else if (percentage < 95) {
+        statusClass = 'at-risk';
+        statusText = 'Trenger oppmerksomhet';
+      }
+
+      const kpiGrid = document.querySelector('.kpi-grid');
+      const newCard = document.createElement('div');
+      newCard.className = 'kpi-card';
+      newCard.innerHTML = `
+        <div class="kpi-number">NY KPI</div>
+        <div class="kpi-title">${name}</div>
+        <div class="kpi-metric">${desc}</div>
+        <div class="kpi-progress">
+          <div class="progress-bar">
+            <div class="progress-fill ${statusClass}" style="width: ${Math.min(percentage, 100)}%"></div>
+          </div>
+          <div class="progress-labels">
+            <span>Faktisk: ${current}</span>
+            <span>Mål: ${target}</span>
+          </div>
+        </div>
+        <span class="status-badge ${statusClass}">${statusText}</span>
+        ${comments ? `<div style="margin-top: 12px; font-size: 12px; color: #666; font-style: italic; padding-top: 12px; border-top: 1px solid var(--ffe-border);">${comments}</div>` : ''}
+      `;
+      
+      kpiGrid.insertBefore(newCard, kpiGrid.firstChild);
+      clearForm();
+      
+      document.getElementById('successMsg').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('successMsg').classList.remove('show');
+      }, 3000);
+      
+      switchTab('kpis');
+    }
+
+    function clearForm() {
+      document.getElementById('kpiName').value = '';
+      document.getElementById('kpiDesc').value = '';
+      document.getElementById('kpiTarget').value = '';
+      document.getElementById('kpiCurrent').value = '';
+      document.getElementById('kpiComments').value = '';
+    }
+  </script>
+</body>
+</html>
