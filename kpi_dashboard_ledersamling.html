@@ -1,42 +1,793 @@
-[
-  {
-    "id": 1,
-    "title": "Best i Alliansen på sikker drift",
-    "metric": "95 % innen SLA",
-    "target": 95,
-    "current": 92,
-    "comments": "Arbeid pågår med stabil drift"
-  },
-  {
-    "id": 2,
-    "title": "Kundetilfredshet",
-    "metric": "Kundetilfredshet → X",
-    "target": 95,
-    "current": 88,
-    "comments": "Fokus på responstid"
-  },
-  {
-    "id": 3,
-    "title": "Høytpresterende kompetansemiljø",
-    "metric": "Autonomi, arbeidsmiljø, utvikling > 8",
-    "target": 8,
-    "current": 7.8,
-    "comments": "Opplæringsprogram i gang"
-  },
-  {
-    "id": 4,
-    "title": "Kundeleveranser effektivitet",
-    "metric": "Effektiviseringsgrad > 5% årlig",
-    "target": 5,
-    "current": 3.6,
-    "comments": "Automatisering av prosesser planlagt"
-  },
-  {
-    "id": 5,
-    "title": "Kvalitet og profesjonalitet",
-    "metric": "Samarbeid på tvers av grenser",
-    "target": 95,
-    "current": 96,
-    "comments": "Fortsatt fokus på standardisering"
-  }
-]
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --ffe-navy: #002776;
+      --ffe-blue: #005aa4;
+      --ffe-green: #00754e;
+      --ffe-amber: #dc8000;
+      --ffe-red: #db3335;
+      --ffe-gray: #323232;
+      --ffe-bg: #f4f7fa;
+      --ffe-border: #d0d5dd;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Source Sans 3', sans-serif;
+      background: var(--ffe-bg);
+      color: var(--ffe-gray);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    .header {
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--ffe-navy);
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .header-info {
+      font-size: 12px;
+      color: #999;
+      margin-top: 0.5rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid var(--ffe-border);
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 12px 20px;
+      border: none;
+      background: none;
+      color: #666;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all 200ms ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      color: var(--ffe-blue);
+      border-bottom-color: var(--ffe-blue);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+      background: white;
+      border: 1px solid var(--ffe-border);
+      border-radius: 6px;
+      padding: 1.25rem;
+      transition: box-shadow 200ms ease;
+      position: relative;
+    }
+
+    .kpi-card:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .kpi-delete-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: none;
+      border: none;
+      color: #ccc;
+      cursor: pointer;
+      font-size: 20px;
+      transition: color 200ms ease;
+    }
+
+    .kpi-delete-btn:hover {
+      color: var(--ffe-red);
+    }
+
+    .kpi-number {
+      font-size: 12px;
+      color: #999;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .kpi-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ffe-navy);
+      margin-bottom: 8px;
+      padding-right: 24px;
+    }
+
+    .kpi-metric {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .kpi-progress {
+      margin-bottom: 12px;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: #e9ecef;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--ffe-green);
+      transition: width 300ms ease;
+    }
+
+    .progress-fill.at-risk {
+      background: var(--ffe-amber);
+    }
+
+    .progress-fill.off-track {
+      background: var(--ffe-red);
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-badge.on-track {
+      background: rgba(0, 117, 78, 0.1);
+      color: var(--ffe-green);
+    }
+
+    .status-badge.at-risk {
+      background: rgba(220, 128, 0, 0.1);
+      color: var(--ffe-amber);
+    }
+
+    .status-badge.off-track {
+      background: rgba(219, 51, 53, 0.1);
+      color: var(--ffe-red);
+    }
+
+    .kpi-comments {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--ffe-border);
+      font-size: 12px;
+      color: #666;
+      font-style: italic;
+    }
+
+    .form-section {
+      background: white;
+      border: 1px solid var(--ffe-border);
+      border-radius: 6px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ffe-navy);
+      margin-bottom: 1.5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ffe-navy);
+      margin-bottom: 6px;
+    }
+
+    input, select, textarea {
+      padding: 10px 12px;
+      border: 1px solid var(--ffe-border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 14px;
+      transition: border-color 200ms ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--ffe-blue);
+      box-shadow: 0 0 0 3px rgba(0, 90, 164, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+
+    .btn-primary {
+      background: var(--ffe-blue);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #004a8a;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--ffe-blue);
+      border: 1px solid var(--ffe-blue);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(0, 90, 164, 0.05);
+    }
+
+    .btn-danger {
+      background: white;
+      color: var(--ffe-red);
+      border: 1px solid var(--ffe-red);
+    }
+
+    .btn-danger:hover {
+      background: rgba(219, 51, 53, 0.05);
+    }
+
+    .message {
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin-top: 1rem;
+      text-align: center;
+      display: none;
+      font-size: 14px;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.success {
+      background: rgba(0, 117, 78, 0.1);
+      color: var(--ffe-green);
+    }
+
+    .message.error {
+      background: rgba(219, 51, 53, 0.1);
+      color: var(--ffe-red);
+    }
+
+    .message.info {
+      background: rgba(0, 90, 164, 0.1);
+      color: var(--ffe-blue);
+    }
+
+    .data-source {
+      font-size: 12px;
+      color: #999;
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: #f9f9f9;
+      border-radius: 4px;
+      border-left: 3px solid var(--ffe-blue);
+    }
+
+    .export-box {
+      background: #f9f9f9;
+      border: 1px solid var(--ffe-border);
+      border-radius: 4px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+
+    .export-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ffe-navy);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .export-textarea {
+      width: 100%;
+      height: 200px;
+      padding: 12px;
+      border: 1px solid var(--ffe-border);
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.4;
+      resize: vertical;
+    }
+
+    .copy-btn {
+      background: var(--ffe-green);
+      color: white;
+      padding: 8px 16px;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    .copy-btn:hover {
+      background: #006141;
+    }
+
+    .import-section {
+      background: #f9f9f9;
+      border: 1px solid var(--ffe-border);
+      border-radius: 4px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .import-textarea {
+      width: 100%;
+      height: 150px;
+      padding: 12px;
+      border: 1px solid var(--ffe-border);
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #999;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 1rem;
+    }
+
+    .info-box {
+      background: rgba(0, 90, 164, 0.05);
+      border-left: 3px solid var(--ffe-blue);
+      padding: 1rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .info-box strong {
+      color: var(--ffe-navy);
+    }
+
+    code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>KPI-oversikt</h1>
+      <p>Ledersamling – drøfting av teamkjl og målsettinger</p>
+      <div class="header-info">💾 Data lagres lokalt på denne maskinen</div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('kpis')">
+        <span style="margin-right: 6px;">📊</span>KPIer
+      </button>
+      <button class="tab-btn" onclick="switchTab('form')">
+        <span style="margin-right: 6px;">➕</span>Legg til
+      </button>
+      <button class="tab-btn" onclick="switchTab('sync')">
+        <span style="margin-right: 6px;">🔄</span>Eksport/Import
+      </button>
+    </div>
+
+    <!-- TAB 1: KPIer -->
+    <div id="kpis" class="tab-content active">
+      <div id="emptyState" class="empty-state" style="display: none;">
+        <div class="empty-state-icon">📭</div>
+        <p>Ingen KPIer lagt til ennå.</p>
+        <p style="font-size: 13px; margin-top: 0.5rem;">Gå til "Legg til" for å opprette din første KPI.</p>
+      </div>
+      <div class="kpi-grid" id="kpiGrid"></div>
+    </div>
+
+    <!-- TAB 2: Legg til ny KPI -->
+    <div id="form" class="tab-content">
+      <div class="form-section">
+        <h2 class="form-title">Legg til ny KPI</h2>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label>KPI-navn *</label>
+            <input type="text" id="kpiName" placeholder="F.eks. Kundetilfredshet">
+          </div>
+          
+          <div class="form-group">
+            <label>Kort beskrivelse *</label>
+            <input type="text" id="kpiDesc" placeholder="F.eks. NPS-score">
+          </div>
+          
+          <div class="form-group">
+            <label>Målverdi *</label>
+            <input type="number" id="kpiTarget" placeholder="F.eks. 95" step="0.1">
+          </div>
+          
+          <div class="form-group">
+            <label>Aktuell verdi *</label>
+            <input type="number" id="kpiCurrent" placeholder="F.eks. 92" step="0.1">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label>Kommentarer</label>
+          <textarea id="kpiComments" placeholder="Bakgrunn, strategi, eller notater..."></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-secondary" onclick="clearForm()">Nullstill</button>
+          <button class="btn-primary" onclick="addKPI()">Legg til KPI</button>
+        </div>
+
+        <div id="addMsg" class="message success"></div>
+
+        <div class="data-source">
+          <strong>💾 Automatisk lagring:</strong> KPIen lagres lokalt når du klikker "Legg til".
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Eksport/Import -->
+    <div id="sync" class="tab-content">
+      <div class="form-section">
+        <h2 class="form-title">Synkroniser med GitHub</h2>
+
+        <div class="info-box">
+          <strong>📋 Slik fungerer det:</strong><br>
+          1. Oppdater KPIer her lokalt<br>
+          2. Klikk "Eksporter JSON" og kopier<br>
+          3. Gå til GitHub, åpne/opprett <code>kpis.json</code><br>
+          4. Lim inn og commit<br>
+          5. Dashbordet er oppdatert for alle!
+        </div>
+
+        <h3 style="font-size: 16px; font-weight: 600; color: var(--ffe-navy); margin-bottom: 1rem; margin-top: 2rem;">📤 Eksporter til GitHub</h3>
+        <p style="font-size: 13px; color: #666; margin-bottom: 1rem;">Kopier JSON-en og lim inn i <code>kpis.json</code> på GitHub:</p>
+
+        <div class="export-box">
+          <textarea id="exportArea" class="export-textarea" readonly></textarea>
+          <button class="btn-primary copy-btn" onclick="copyExport()">📋 Kopier JSON</button>
+        </div>
+
+        <h3 style="font-size: 16px; font-weight: 600; color: var(--ffe-navy); margin-bottom: 1rem; margin-top: 2rem;">📥 Importer fra GitHub</h3>
+        <p style="font-size: 13px; color: #666; margin-bottom: 1rem;">Lim inn JSON fra <code>kpis.json</code>:</p>
+
+        <div class="import-section">
+          <textarea id="importArea" class="import-textarea" placeholder='Lim inn JSON her...'></textarea>
+          <button class="btn-primary" onclick="importJSON()">📥 Importer JSON</button>
+        </div>
+
+        <div id="syncMsg" class="message"></div>
+
+        <div style="background: #fff9e6; padding: 1rem; border-radius: 4px; border-left: 3px solid var(--ffe-amber); margin-top: 1.5rem; font-size: 13px; line-height: 1.6;">
+          <strong style="color: var(--ffe-amber);">💡 Tips:</strong> Når du eksporterer, lagres dataene i tekstformatet (JSON). Du kan redigere direkte i GitHub eller her før import.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // DEFAULT DATA - dette lastes første gang
+    const DEFAULT_KPIS = [
+      {
+        "id": 1,
+        "title": "Best i Alliansen på sikker drift",
+        "metric": "95 % innen SLA",
+        "target": 95,
+        "current": 92,
+        "comments": "Arbeid pågår med stabil drift"
+      },
+      {
+        "id": 2,
+        "title": "Kundetilfredshet",
+        "metric": "Kundetilfredshet → X",
+        "target": 95,
+        "current": 88,
+        "comments": "Fokus på responstid"
+      },
+      {
+        "id": 3,
+        "title": "Høytpresterende kompetansemiljø",
+        "metric": "Autonomi, arbeidsmiljø, utvikling > 8",
+        "target": 8,
+        "current": 7.8,
+        "comments": "Opplæringsprogram i gang"
+      },
+      {
+        "id": 4,
+        "title": "Kundeleveranser effektivitet",
+        "metric": "Effektiviseringsgrad > 5% årlig",
+        "target": 5,
+        "current": 3.6,
+        "comments": "Automatisering av prosesser planlagt"
+      },
+      {
+        "id": 5,
+        "title": "Kvalitet og profesjonalitet",
+        "metric": "Samarbeid på tvers av grenser",
+        "target": 95,
+        "current": 96,
+        "comments": "Fortsatt fokus på standardisering"
+      }
+    ];
+
+    let kpis = [];
+
+    // Last KPIer fra localStorage eller bruk defaults
+    function loadKPIs() {
+      const stored = localStorage.getItem('kpis');
+      if (stored) {
+        try {
+          kpis = JSON.parse(stored);
+        } catch (e) {
+          kpis = DEFAULT_KPIS;
+          saveToLocalStorage();
+        }
+      } else {
+        kpis = [...DEFAULT_KPIS];
+        saveToLocalStorage();
+      }
+      renderKPIs();
+      updateExportArea();
+    }
+
+    // Lagre til localStorage
+    function saveToLocalStorage() {
+      localStorage.setItem('kpis', JSON.stringify(kpis));
+      updateExportArea();
+    }
+
+    function getStatus(percentage) {
+      if (percentage >= 95) return { class: 'on-track', text: 'Vel innen mål' };
+      if (percentage >= 85) return { class: 'at-risk', text: 'Trenger oppmerksomhet' };
+      return { class: 'off-track', text: 'Under mål' };
+    }
+
+    function renderKPIs() {
+      const grid = document.getElementById('kpiGrid');
+      const emptyState = document.getElementById('emptyState');
+
+      if (kpis.length === 0) {
+        grid.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      grid.style.display = 'grid';
+      emptyState.style.display = 'none';
+      grid.innerHTML = '';
+
+      kpis.forEach((kpi, index) => {
+        const percentage = Math.round((kpi.current / kpi.target) * 100);
+        const status = getStatus(percentage);
+
+        const card = document.createElement('div');
+        card.className = 'kpi-card';
+        card.innerHTML = `
+          <button class="kpi-delete-btn" onclick="deleteKPI(${index})" title="Slett">×</button>
+          <div class="kpi-number">KPI #${kpi.id || index + 1}</div>
+          <div class="kpi-title">${kpi.title}</div>
+          <div class="kpi-metric">${kpi.metric}</div>
+          <div class="kpi-progress">
+            <div class="progress-bar">
+              <div class="progress-fill ${status.class}" style="width: ${Math.min(percentage, 100)}%"></div>
+            </div>
+            <div class="progress-labels">
+              <span>Faktisk: ${kpi.current}</span>
+              <span>Mål: ${kpi.target}</span>
+            </div>
+          </div>
+          <span class="status-badge ${status.class}">${status.text}</span>
+          ${kpi.comments ? `<div class="kpi-comments">${kpi.comments}</div>` : ''}
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function updateExportArea() {
+      const exportArea = document.getElementById('exportArea');
+      exportArea.value = JSON.stringify(kpis, null, 2);
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabName).classList.add('active');
+      event.target.closest('.tab-btn').classList.add('active');
+    }
+
+    function addKPI() {
+      const name = document.getElementById('kpiName').value;
+      const desc = document.getElementById('kpiDesc').value;
+      const target = parseFloat(document.getElementById('kpiTarget').value);
+      const current = parseFloat(document.getElementById('kpiCurrent').value);
+      const comments = document.getElementById('kpiComments').value;
+
+      if (!name || !desc || isNaN(target) || isNaN(current)) {
+        alert('Vennligst fyll inn alle påkrevde felt (markert med *)');
+        return;
+      }
+
+      const newKPI = {
+        id: (kpis.length > 0 ? Math.max(...kpis.map(k => k.id || 0)) : 0) + 1,
+        title: name,
+        metric: desc,
+        target: target,
+        current: current,
+        comments: comments
+      };
+
+      kpis.push(newKPI);
+      saveToLocalStorage();
+      renderKPIs();
+      clearForm();
+
+      showMessage('addMsg', '✓ KPI lagt til!', 'success');
+      setTimeout(() => switchTab('kpis'), 500);
+    }
+
+    function deleteKPI(index) {
+      if (confirm('Er du sikker på at du vil slette denne KPIen?')) {
+        kpis.splice(index, 1);
+        saveToLocalStorage();
+        renderKPIs();
+      }
+    }
+
+    function clearForm() {
+      document.getElementById('kpiName').value = '';
+      document.getElementById('kpiDesc').value = '';
+      document.getElementById('kpiTarget').value = '';
+      document.getElementById('kpiCurrent').value = '';
+      document.getElementById('kpiComments').value = '';
+      document.getElementById('addMsg').classList.remove('show');
+    }
+
+    function copyExport() {
+      const exportArea = document.getElementById('exportArea');
+      exportArea.select();
+      document.execCommand('copy');
+      
+      const btn = event.target;
+      const originalText = btn.textContent;
+      btn.textContent = '✓ Kopiert!';
+      setTimeout(() => {
+        btn.textContent = originalText;
+      }, 2000);
+    }
+
+    function importJSON() {
+      const importArea = document.getElementById('importArea');
+      const json = importArea.value.trim();
+
+      if (!json) {
+        showMessage('syncMsg', 'Lim inn JSON-data først', 'error');
+        return;
+      }
+
+      try {
+        kpis = JSON.parse(json);
+        saveToLocalStorage();
+        renderKPIs();
+        importArea.value = '';
+        showMessage('syncMsg', '✓ JSON importert og lagret!', 'success');
+        setTimeout(() => switchTab('kpis'), 1000);
+      } catch (error) {
+        showMessage('syncMsg', '❌ Ugyldig JSON. Sjekk formatet.', 'error');
+      }
+    }
+
+    function showMessage(elementId, text, type) {
+      const msg = document.getElementById(elementId);
+      msg.textContent = text;
+      msg.className = 'message show ' + type;
+      if (type === 'success') {
+        setTimeout(() => msg.classList.remove('show'), 3000);
+      }
+    }
+
+    // Last KPIer ved oppstart
+    window.addEventListener('load', loadKPIs);
+  </script>
+</body>
+</html>
