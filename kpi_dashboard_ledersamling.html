@@ -456,7 +456,7 @@
   <div class="container">
     <div class="header">
       <h1>KPI-oversikt</h1>
-      <p>Ledersamling – drøfting av KPier og målsettinger</p>
+      <p>Ledersamling – drøfting av KPIer og målsettinger</p>
       <div class="header-info">💾 Data lagres lokalt på denne maskinen</div>
     </div>
 
@@ -554,7 +554,10 @@
 
         <div class="import-section">
           <textarea id="importArea" class="import-textarea" placeholder='Lim inn JSON her...'></textarea>
-          <button class="btn-primary" onclick="importJSON()">📥 Importer JSON</button>
+          <div class="form-actions" style="justify-content: flex-start;">
+            <button class="btn-primary" onclick="importJSON()">📥 Importer JSON</button>
+            <button class="btn-secondary" onclick="reloadFromGitHub()">🔄 Oppdater fra GitHub</button>
+          </div>
         </div>
 
         <div id="syncMsg" class="message"></div>
@@ -613,22 +616,57 @@
 
     let kpis = [];
 
-    // Last KPIer fra localStorage eller bruk defaults
-    function loadKPIs() {
+    // Last KPIer fra kpis.json (GitHub) først, deretter localStorage, deretter defaults
+    async function loadKPIs() {
+      try {
+        // Prøv å hente fra kpis.json
+        const response = await fetch('kpis.json?t=' + Date.now()); // cache-busting
+        if (response.ok) {
+          kpis = await response.json();
+          saveToLocalStorage();
+          renderKPIs();
+          updateExportArea();
+          return;
+        }
+      } catch (error) {
+        console.log('Kunne ikke laste kpis.json, bruker localStorage');
+      }
+
+      // Fallback: bruk localStorage
       const stored = localStorage.getItem('kpis');
       if (stored) {
         try {
           kpis = JSON.parse(stored);
         } catch (e) {
-          kpis = DEFAULT_KPIS;
+          kpis = [...DEFAULT_KPIS];
           saveToLocalStorage();
         }
       } else {
         kpis = [...DEFAULT_KPIS];
         saveToLocalStorage();
       }
+      
       renderKPIs();
       updateExportArea();
+    }
+
+    // Manuell reload fra GitHub
+    async function reloadFromGitHub() {
+      try {
+        const response = await fetch('kpis.json?t=' + Date.now());
+        if (response.ok) {
+          kpis = await response.json();
+          saveToLocalStorage();
+          renderKPIs();
+          updateExportArea();
+          showMessage('syncMsg', '✓ Oppdatert fra GitHub!', 'success');
+          setTimeout(() => switchTab('kpis'), 1000);
+        } else {
+          showMessage('syncMsg', '❌ Kunne ikke laste kpis.json fra GitHub', 'error');
+        }
+      } catch (error) {
+        showMessage('syncMsg', '❌ Feil ved lasting fra GitHub. Sjekk at kpis.json eksisterer.', 'error');
+      }
     }
 
     // Lagre til localStorage
