@@ -51,6 +51,12 @@
       color: #666;
     }
 
+    .header-info {
+      font-size: 12px;
+      color: #999;
+      margin-top: 0.5rem;
+    }
+
     .tabs {
       display: flex;
       gap: 0;
@@ -182,6 +188,15 @@
       color: var(--ffe-red);
     }
 
+    .kpi-comments {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--ffe-border);
+      font-size: 12px;
+      color: #666;
+      font-style: italic;
+    }
+
     .form-section {
       background: white;
       border: 1px solid var(--ffe-border);
@@ -288,13 +303,38 @@
     .add-success.show {
       display: block;
     }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: #666;
+    }
+
+    .error {
+      background: rgba(219, 51, 53, 0.1);
+      color: var(--ffe-red);
+      padding: 1rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+
+    .data-source {
+      font-size: 12px;
+      color: #999;
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: #f9f9f9;
+      border-radius: 4px;
+      border-left: 3px solid var(--ffe-blue);
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
       <h1>KPI-oversikt</h1>
-      <p>Ledersamling – drøfting av KPIer og målsettinger</p>
+      <p>Ledersamling – drøfting av teamkjl og målsettinger</p>
+      <div class="header-info">📊 Data lastet fra kpis.json</div>
     </div>
 
     <div class="tabs">
@@ -304,90 +344,15 @@
       <button class="tab-btn" onclick="switchTab('form')">
         <span style="margin-right: 6px;">➕</span>Legg til ny KPI
       </button>
+      <button class="tab-btn" onclick="switchTab('guide')">
+        <span style="margin-right: 6px;">❓</span>Vedlikehold data
+      </button>
     </div>
 
     <div id="kpis" class="tab-content active">
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-number">KPI #1</div>
-          <div class="kpi-title">Best i Alliansen på sikker drift</div>
-          <div class="kpi-metric">95 % innen SLA</div>
-          <div class="kpi-progress">
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: 92%"></div>
-            </div>
-            <div class="progress-labels">
-              <span>Faktisk: 92%</span>
-              <span>Mål: 95%</span>
-            </div>
-          </div>
-          <span class="status-badge at-risk">I nærheten av mål</span>
-        </div>
-
-        <div class="kpi-card">
-          <div class="kpi-number">KPI #2</div>
-          <div class="kpi-title">Kundetilfredshet</div>
-          <div class="kpi-metric">Kundetilfredshet → X</div>
-          <div class="kpi-progress">
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: 88%"></div>
-            </div>
-            <div class="progress-labels">
-              <span>Faktisk: 88%</span>
-              <span>Mål: 95%</span>
-            </div>
-          </div>
-          <span class="status-badge at-risk">Trenger forbedring</span>
-        </div>
-
-        <div class="kpi-card">
-          <div class="kpi-number">KPI #3</div>
-          <div class="kpi-title">Høytpresterende kompetansemiljø</div>
-          <div class="kpi-metric">Autonomi, arbeidsmiljø, utvikling > 8</div>
-          <div class="kpi-progress">
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: 78%"></div>
-            </div>
-            <div class="progress-labels">
-              <span>Faktisk: 7,8</span>
-              <span>Mål: 8,0</span>
-            </div>
-          </div>
-          <span class="status-badge at-risk">Tett på mål</span>
-        </div>
-
-        <div class="kpi-card">
-          <div class="kpi-number">KPI #4</div>
-          <div class="kpi-title">Kundeleveranser effektivitet</div>
-          <div class="kpi-metric">Effektiviseringsgrad > 5% årlig</div>
-          <div class="kpi-progress">
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: 72%"></div>
-            </div>
-            <div class="progress-labels">
-              <span>Faktisk: 3,6%</span>
-              <span>Mål: 5,0%</span>
-            </div>
-          </div>
-          <span class="status-badge off-track">Under mål</span>
-        </div>
-
-        <div class="kpi-card">
-          <div class="kpi-number">KPI #5</div>
-          <div class="kpi-title">Kvalitet og profesjonalitet</div>
-          <div class="kpi-metric">Samarbeid på tvers av grenser</div>
-          <div class="kpi-progress">
-            <div class="progress-bar">
-              <div class="progress-fill on-track" style="width: 96%"></div>
-            </div>
-            <div class="progress-labels">
-              <span>Faktisk: 96%</span>
-              <span>Mål: 95%</span>
-            </div>
-          </div>
-          <span class="status-badge on-track">Vel innen mål</span>
-        </div>
-      </div>
+      <div id="loading" class="loading">Laster KPI-data...</div>
+      <div id="error" class="error" style="display: none;"></div>
+      <div class="kpi-grid" id="kpiGrid"></div>
     </div>
 
     <div id="form" class="tab-content">
@@ -427,13 +392,116 @@
         </div>
 
         <div class="add-success" id="successMsg">
-          ✓ KPI lagt til! Klar for presentasjon i ledersamlingen.
+          ✓ KPI lagt til lokalt! For å lagre permanent, kopier JSON-en og oppdater kpis.json i repo.
+        </div>
+
+        <div class="data-source">
+          <strong>💡 Tips:</strong> Disse KPIene lagres kun i nettleseren. For permanent lagring, rediger <code>kpis.json</code>-filen direkte i GitHub.
+        </div>
+      </div>
+    </div>
+
+    <div id="guide" class="tab-content">
+      <div class="form-section">
+        <h2 class="form-title">Hvordan vedlikeholde KPI-data</h2>
+        
+        <div style="margin-bottom: 2rem;">
+          <h3 style="font-size: 16px; font-weight: 600; color: var(--ffe-navy); margin-bottom: 1rem;">Metode 1: Rediger direkte i GitHub (anbefalt)</h3>
+          <ol style="margin-left: 1.5rem; line-height: 1.8;">
+            <li>Gå til <code>kpis.json</code> i ditt repo</li>
+            <li>Klikk på blyant-ikonet (edit)</li>
+            <li>Oppdater verdiene (current, target, comments osv.)</li>
+            <li>Klikk "Commit changes"</li>
+            <li>Dashbordet oppdateres automatisk!</li>
+          </ol>
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+          <h3 style="font-size: 16px; font-weight: 600; color: var(--ffe-navy); margin-bottom: 1rem;">Metode 2: Fra Excel til JSON</h3>
+          <p style="margin-bottom: 1rem;">Hvis du foretrekker å jobbe i Excel:</p>
+          <ol style="margin-left: 1.5rem; line-height: 1.8;">
+            <li>Opprett en Excel-fil med kolonnene: title, metric, target, current, comments</li>
+            <li>Bruk en JSON-konverter: <a href="https://www.convertcsv.com/csv-to-json.htm" target="_blank" style="color: var(--ffe-blue);">https://www.convertcsv.com/csv-to-json.htm</a></li>
+            <li>Eksporter Excel som CSV → konverter til JSON</li>
+            <li>Kopier JSON-en inn i <code>kpis.json</code> på GitHub</li>
+          </ol>
+        </div>
+
+        <div style="background: #f0f7ff; padding: 1rem; border-radius: 4px; border-left: 3px solid var(--ffe-blue);">
+          <h4 style="font-size: 14px; font-weight: 600; color: var(--ffe-navy); margin-bottom: 0.5rem;">📋 JSON-format (reference)</h4>
+          <pre style="background: white; padding: 0.75rem; border-radius: 4px; overflow-x: auto; font-size: 12px; line-height: 1.4;">
+[
+  {
+    "id": 1,
+    "title": "KPI-navn",
+    "metric": "Måleenhet",
+    "target": 95,
+    "current": 92,
+    "comments": "Kommentarer"
+  }
+]</pre>
         </div>
       </div>
     </div>
   </div>
 
   <script>
+    let kpis = [];
+
+    // Last KPI-data fra kpis.json
+    async function loadKPIs() {
+      try {
+        const response = await fetch('kpis.json');
+        if (!response.ok) {
+          throw new Error('Kunne ikke laste kpis.json');
+        }
+        kpis = await response.json();
+        document.getElementById('loading').style.display = 'none';
+        renderKPIs();
+      } catch (error) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').textContent = '⚠️ Kunne ikke laste KPI-data fra kpis.json. Sjekk at filen eksisterer i repo-roten.';
+        document.getElementById('error').style.display = 'block';
+        console.error('Feil ved lasting av KPIer:', error);
+      }
+    }
+
+    function getStatus(percentage) {
+      if (percentage >= 95) return { class: 'on-track', text: 'Vel innen mål' };
+      if (percentage >= 85) return { class: 'at-risk', text: 'Trenger oppmerksomhet' };
+      return { class: 'off-track', text: 'Under mål' };
+    }
+
+    function renderKPIs() {
+      const grid = document.getElementById('kpiGrid');
+      grid.innerHTML = '';
+
+      kpis.forEach((kpi, index) => {
+        const percentage = Math.round((kpi.current / kpi.target) * 100);
+        const status = getStatus(percentage);
+
+        const card = document.createElement('div');
+        card.className = 'kpi-card';
+        card.innerHTML = `
+          <div class="kpi-number">KPI #${kpi.id || index + 1}</div>
+          <div class="kpi-title">${kpi.title}</div>
+          <div class="kpi-metric">${kpi.metric}</div>
+          <div class="kpi-progress">
+            <div class="progress-bar">
+              <div class="progress-fill ${status.class}" style="width: ${Math.min(percentage, 100)}%"></div>
+            </div>
+            <div class="progress-labels">
+              <span>Faktisk: ${kpi.current}</span>
+              <span>Mål: ${kpi.target}</span>
+            </div>
+          </div>
+          <span class="status-badge ${status.class}">${status.text}</span>
+          ${kpi.comments ? `<div class="kpi-comments">${kpi.comments}</div>` : ''}
+        `;
+        grid.appendChild(card);
+      });
+    }
+
     function switchTab(tabName) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -453,46 +521,24 @@
         return;
       }
 
-      const percentage = Math.round((current / target) * 100);
-      let statusClass = 'on-track';
-      let statusText = 'Vel innen mål';
-      
-      if (percentage < 85) {
-        statusClass = 'off-track';
-        statusText = 'Under mål';
-      } else if (percentage < 95) {
-        statusClass = 'at-risk';
-        statusText = 'Trenger oppmerksomhet';
-      }
+      const newKPI = {
+        id: (kpis.length > 0 ? Math.max(...kpis.map(k => k.id)) : 0) + 1,
+        title: name,
+        metric: desc,
+        target: target,
+        current: current,
+        comments: comments
+      };
 
-      const kpiGrid = document.querySelector('.kpi-grid');
-      const newCard = document.createElement('div');
-      newCard.className = 'kpi-card';
-      newCard.innerHTML = `
-        <div class="kpi-number">NY KPI</div>
-        <div class="kpi-title">${name}</div>
-        <div class="kpi-metric">${desc}</div>
-        <div class="kpi-progress">
-          <div class="progress-bar">
-            <div class="progress-fill ${statusClass}" style="width: ${Math.min(percentage, 100)}%"></div>
-          </div>
-          <div class="progress-labels">
-            <span>Faktisk: ${current}</span>
-            <span>Mål: ${target}</span>
-          </div>
-        </div>
-        <span class="status-badge ${statusClass}">${statusText}</span>
-        ${comments ? `<div style="margin-top: 12px; font-size: 12px; color: #666; font-style: italic; padding-top: 12px; border-top: 1px solid var(--ffe-border);">${comments}</div>` : ''}
-      `;
-      
-      kpiGrid.insertBefore(newCard, kpiGrid.firstChild);
+      kpis.push(newKPI);
+      renderKPIs();
       clearForm();
-      
+
       document.getElementById('successMsg').classList.add('show');
       setTimeout(() => {
         document.getElementById('successMsg').classList.remove('show');
       }, 3000);
-      
+
       switchTab('kpis');
     }
 
@@ -503,6 +549,9 @@
       document.getElementById('kpiCurrent').value = '';
       document.getElementById('kpiComments').value = '';
     }
+
+    // Last KPIer når siden lastes
+    loadKPIs();
   </script>
 </body>
 </html>
