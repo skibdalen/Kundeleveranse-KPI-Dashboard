@@ -1,1 +1,42 @@
-
+[
+  {
+    "id": 1,
+    "title": "Best i Alliansen på sikker drift",
+    "metric": "95 % innen SLA",
+    "target": 95,
+    "current": 92,
+    "comments": "Arbeid pågår med stabil drift"
+  },
+  {
+    "id": 2,
+    "title": "Kundetilfredshet",
+    "metric": "Kundetilfredshet → X",
+    "target": 95,
+    "current": 88,
+    "comments": "Fokus på responstid"
+  },
+  {
+    "id": 3,
+    "title": "Høytpresterende kompetansemiljø",
+    "metric": "Autonomi, arbeidsmiljø, utvikling > 8",
+    "target": 8,
+    "current": 7.8,
+    "comments": "Opplæringsprogram i gang"
+  },
+  {
+    "id": 4,
+    "title": "Kundeleveranser effektivitet",
+    "metric": "Effektiviseringsgrad > 5% årlig",
+    "target": 5,
+    "current": 3.6,
+    "comments": "Automatisering av prosesser planlagt"
+  },
+  {
+    "id": 5,
+    "title": "Kvalitet og profesjonalitet",
+    "metric": "Samarbeid på tvers av grenser",
+    "target": 95,
+    "current": 96,
+    "comments": "Fortsatt fokus på standardisering"
+  }
+]
